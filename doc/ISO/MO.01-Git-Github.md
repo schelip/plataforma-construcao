@@ -49,10 +49,21 @@ Por fim, realize o push para seu fork:
 $ git push origin TXXX.X
 ```
 
-## Merge Request
+## Pull Request
 
+Ao realizar o push, o git irá gerar um link para um novo PR no github.
 
+![](../assets/images/git-pr-link.png)
 
+Na página de criação do PR, adicione o título do PR seguindo o padrão **fix TXXX.X**, anexando um link para o card no trello na descrição.
+Insira você mesmo como **Assignee** do PR e coloque outro desenvolvedor como o **Reviewer**.
 
+Para realizar o fetch de um PR para seu repositório local, utilize o comando:
 
+```bash
+$ git fetch upstream pull/<pr-id>/head:pr-TXXX.X
+$ git checkout pr-TXXX.X
+```
+
+Onde pr-id é o número do pull request no github.
 
