@@ -1,6 +1,6 @@
 # MO 02 - Utilizando o Trello
 
-No Trello, cada quadro representa uma sprint, e cada card a partir da segunda coluna representa uma tarefa.
+Cada card na primeira coluna representa uma história, e cada card a partir da segunda coluna representa uma tarefa.
 
 ## Colunas do quadro
 
@@ -8,13 +8,13 @@ No Trello, cada quadro representa uma sprint, e cada card a partir da segunda co
 - **Backlog da sprint**: no início da sprint, armazena todas as tarefas a serem realizadas na sprint. 
 Cada card está vinculado a sua história de origem, e segue o padrão de nomencladura TXXX.X, onde o valor após o ponto
 representa a tarefa X e o valor antes do ponto representa a origem na história XXX.
-- **Reaberto**: a tarefa já foi iniciada, mas não está tendo trabalho ativo nela e ainda não foi finalizada.
+- **Re-Aberto**: a tarefa já foi iniciada, mas não está tendo trabalho ativo nela e ainda não foi finalizada.
 - **Em progresso**: significa que o membro já iniciou o desenvolvimento da tarefa.
 - **Pronto para Revisão**: o membro já terminou o desenvolvimento, e o revisor do PR deve iniciar a revisão.
 - **Revisando**: a revisão foi iniciada e está em progresso.
 - **Pronto para Merge**: o desenvolvimento foi finalizado e não foram encontrados problemas,
 o código pode ser mergeado à branch principal.
-- **Concluído:** a tarefa foi totalmente finalizada.
+- **Concluído - SXXX:** a tarefa foi totalmente finalizada.
 
 ## Processos a serem realizados
 
@@ -91,52 +91,18 @@ Realize o fetch do PR seguindo o [MO.01](./MO.01-Git-Github.md). Então realize 
 - Possíveis melhorias de performance, uso de memória, UI/UX
 - Limpeza do código e bom uso de padrões de projeto
 
-Ao finalizar a revisão, adicione um comentário seguindo o modelo abaixo e então mova o card para
-**Reaberto**, caso a revisão indicou algum problema, para **Pronto para Merge**, se não foram encontrados problemas
-e existe um PR a ser aceito, ou **Concluído**, se não foram econtrados problemas e não foram realizadas alteraçoes no código.
+Ao finalizar a revisão, adicione comentários no github para cada erro encontrado, e então seleciona a opção de requisitar
+mudanças ou de aprovar. Por fim, mova o card para **Reaberto**, caso a revisão indicou algum problema, para
+**Pronto para Merge**, se não foram encontrados problemas e existe um PR a ser aceito, ou **Concluído**, se não foram
+econtrados problemas e não foram realizadas alteraçoes no código.
 
-#### Modelo de Comentário para Desenvolvimento
+## Tags
 
-```markdown
-# Resultado
-**Reviewer:** seu nome
+Existe um conjunto de tags que são utilizadas para apresentar informações adicionais para cada card.
 
-Revisão concluída, nenhum problema encontrado.
-ou
-Revisão concluída, problemas foram encontrados.
-
-## Informações da revisão
-
-### Pontos avaliados
-
-* [ ] **[1]** Ponto 1, com problemas
-
-* [X] **[2]** Ponto 2, sem problemas
-    * [X] **[2.1]** Subponto 2.1, sem problemas
-
-* [ ] **[3]** Ponto 3, com problemas
-    * [X] **[3.1]** Subponto 3.1, sem problemas
-    * [ ] **[3.2]** Subponto 3.2, com problemas
-      
-...
-
-### Considerações
-
-* Consideracao 1
-* Consideracao 2
-...
-  
-### Informações para o desenvolvedor
-
-Informações úteis, por exemplo, sujestões de correção, possíveis ferramentas a serem utilizadas, possíveis melhorias.
-
-### Conclusão
-
-O card será movido para **Reaberto**/**Pronto para Merge**/**Concluído**
-
-## Evidências
-
-* **[1]** Imagem/vídeo comprovando resultado do ponto 1
-
-* **[2.1]** Imagem/vídeo comprovando resultado do subponto 2.1
-```
+- *SXXX: dd/mm/yy - dd/mm/yy* indica qual a sprint de desenvolvimento do card. Ou seja, ao ser finalizado, o card deve
+ser movido para a coluna de concluído da sprint correspondente a essa tag.
+- *Merged sem revisão* indica que, por algum motivo, um card que realiza alterações no código teve as alterações aceitas
+sem passar revisão.
+- *Prioridade* quando o card deve ser realizado antes de qualquer outro, por ser urgente ou essencial para outras tarefas.
+- *Cancelado* quando o card era planejado, mas não será realizado por algum motivo, nem nessa sprint e nem em nenhum outra.
