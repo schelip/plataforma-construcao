@@ -1,21 +1,34 @@
 package com.equipe05.plataformaconstrucao.model;
 
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+
+import java.util.HashSet;
 import java.util.Objects;
-import jakarta.persistence.Table;
+import java.util.Set;
 
 
 @Entity
-@Table(name = "user_account")
+@Table(name = "user_account",
+        uniqueConstraints = {
+            @UniqueConstraint(columnNames = "nickname"),
+            @UniqueConstraint(columnNames = "email"),
+        })
 public class User {
     private @Id @GeneratedValue Long id;
-    private String nickname;
-    private String email;
-    private String password;
-    private int age;
+    private @NotBlank String nickname;
+    private @NotBlank @Email String email;
+    private @NotBlank String password;
+    private @NotBlank @Min(18) int age;
+
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(name = "user_role",
+               joinColumns = @JoinColumn(name = "user_id"),
+               inverseJoinColumns = @JoinColumn(name = "role_id"))
+    private Set<Role> roles = new HashSet<>();
 
     User() {}
 
@@ -67,14 +80,21 @@ public class User {
         this.age = Age;
     }
 
+    public Set<Role> getRoles() {
+        return roles;
+    }
+
+    public void setRoles(Set<Role> roles) {
+        this.roles = roles;
+    }
+
     @Override
     public boolean equals(Object o) {
 
         if (this == o)
             return true;
-        if (!(o instanceof User))
+        if (!(o instanceof User user))
             return false;
-        User user = (User) o;
         return Objects.equals(this.id, user.id) && Objects.equals(this.nickname, user.nickname)
                 && Objects.equals(this.email, user.email) && Objects.equals(this.password, user.password)
                     && Objects.equals(this.age, user.age);
