@@ -38,9 +38,9 @@ public class UserController {
             List<User> user = new ArrayList<User>();
 
             if (email == null)
-                userRepository.findAll().forEach(user::add);
+                user.addAll(userRepository.findAll());
             else
-                userRepository.findByEmailContaining(email).forEach(user::add);
+                user.addAll(userRepository.findByEmailContaining(email));
             if (user.isEmpty()) {
                 return new ResponseEntity<>(HttpStatus.NO_CONTENT);
             }
@@ -55,16 +55,17 @@ public class UserController {
     public ResponseEntity<User> getUserById(@PathVariable("id") long id) {
         Optional<User> userData = userRepository.findById(id);
 
-        if (userData.isPresent()) {
-            return new ResponseEntity<>(userData.get(), HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
+        return userData.map(user -> new ResponseEntity<>(user, HttpStatus.OK))
+                .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
     @PostMapping("/user")
     public ResponseEntity<User> createUser(@RequestBody User user) {
        try {
-           User _user = userRepository.save(new User(user.getId(), user.getNickname(), user.getEmail(), user.getPassword(), user.getAge()));
+           User _user = userRepository.save(new User(user.getId(),
+                   user.getNickname(),
+                   user.getEmail(),
+                   user.getPassword(),
+                   user.getAge()));
            return new ResponseEntity<>(_user, HttpStatus.CREATED);
        } catch (Exception e) {
            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -108,14 +109,14 @@ public class UserController {
     }
 
     @GetMapping("/user/byNickname/{nickname}")
-    public ResponseEntity<List<User>> findByNickname(@PathVariable("nickname") String nickname) {
+    public ResponseEntity<User> findByNickname(@PathVariable("nickname") String nickname) {
         try {
-            List<User> users = userRepository.findByNickname(nickname);
+            Optional<User> users = userRepository.findByNickname(nickname);
 
             if (users.isEmpty()) {
                 return new ResponseEntity<>(HttpStatus.NO_CONTENT);
             }
-            return new ResponseEntity<>(users, HttpStatus.OK);
+            return new ResponseEntity<>(users.get(), HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
