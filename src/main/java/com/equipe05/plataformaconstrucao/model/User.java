@@ -14,12 +14,12 @@ import java.util.Set;
 @Entity
 @Table(name = "user_account",
         uniqueConstraints = {
-            @UniqueConstraint(columnNames = "nickname"),
+            @UniqueConstraint(columnNames = "username"),
             @UniqueConstraint(columnNames = "email"),
         })
 public class User {
     private @Id @GeneratedValue Long id;
-    private @NotBlank String nickname;
+    private @NotBlank String username;
     private @NotBlank @Email String email;
     private @NotBlank String password;
     private @NotBlank @Min(18) int age;
@@ -34,7 +34,7 @@ public class User {
 
     public User(Long id, String nickname, String email, String password, int age) {
         this.id = id;
-        this.nickname = nickname;
+        this.username = nickname;
         this.email = email;
         this.password = password;
         this.age = age;
@@ -48,12 +48,12 @@ public class User {
         this.id = id;
     }
 
-    public String getNickname() {
-        return this.nickname;
+    public String getUsername() {
+        return this.username;
     }
 
-    public void setNickname(String nickname) {
-        this.nickname = nickname;
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     public String getEmail() {
@@ -95,19 +95,19 @@ public class User {
             return true;
         if (!(o instanceof User user))
             return false;
-        return Objects.equals(this.id, user.id) && Objects.equals(this.nickname, user.nickname)
+        return Objects.equals(this.id, user.id) && Objects.equals(this.username, user.username)
                 && Objects.equals(this.email, user.email) && Objects.equals(this.password, user.password)
                     && Objects.equals(this.age, user.age);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(this.id, this.nickname, this.email, this.password, this.age);
+        return Objects.hash(this.id, this.username, this.email, this.password, this.age);
     }
 
     @Override
     public String toString() {
-        return "User{" + "id=" + this.id + ", Nickname='" + this.nickname + '\'' + ", Email='" + this.email + '\'' +  ", Password='" + this.password + '\'' + ",'Age='" + this.age + '}';
+        return "User{" + "id=" + this.id + ", Nickname='" + this.username + '\'' + ", Email='" + this.email + '\'' +  ", Password='" + this.password + '\'' + ",'Age='" + this.age + '}';
     }
 
 }

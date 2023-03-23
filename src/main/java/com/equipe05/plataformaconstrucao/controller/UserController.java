@@ -1,24 +1,12 @@
 package com.equipe05.plataformaconstrucao.controller;
 
 
+import com.equipe05.plataformaconstrucao.model.User;
 import com.equipe05.plataformaconstrucao.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-
-import com.equipe05.plataformaconstrucao.model.User;
-
-
+import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,8 +17,7 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/api")
 public class UserController {
-    @Autowired
-    UserRepository userRepository;
+    @Autowired UserRepository userRepository;
 
     @GetMapping("/user")
     public ResponseEntity<List<User>> getAllUser(@RequestParam(required = false) String email) {
@@ -62,7 +49,7 @@ public class UserController {
     public ResponseEntity<User> createUser(@RequestBody User user) {
        try {
            User _user = userRepository.save(new User(user.getId(),
-                   user.getNickname(),
+                   user.getUsername(),
                    user.getEmail(),
                    user.getPassword(),
                    user.getAge()));
@@ -79,7 +66,7 @@ public class UserController {
         if (userData.isPresent()) {
             User _user = userData.get();
             _user.setEmail(user.getEmail());
-            _user.setNickname(user.getNickname());
+            _user.setUsername(user.getUsername());
             _user.setAge(user.getAge());
             _user.setPassword(user.getPassword());
             return new ResponseEntity<>(userRepository.save(_user), HttpStatus.OK);
@@ -108,10 +95,10 @@ public class UserController {
         }
     }
 
-    @GetMapping("/user/byNickname/{nickname}")
-    public ResponseEntity<User> findByNickname(@PathVariable("nickname") String nickname) {
+    @GetMapping("/user/byUsername/{username}")
+    public ResponseEntity<User> findByUsername(@PathVariable("username") String username) {
         try {
-            Optional<User> users = userRepository.findByNickname(nickname);
+            Optional<User> users = userRepository.findByUsername(username);
 
             if (users.isEmpty()) {
                 return new ResponseEntity<>(HttpStatus.NO_CONTENT);
