@@ -6,6 +6,7 @@ import com.equipe05.plataformaconstrucao.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -20,6 +21,7 @@ public class UserController {
     @Autowired UserRepository userRepository;
 
     @GetMapping("/user")
+    @PreAuthorize("hasRole('USER')")
     public ResponseEntity<List<User>> getAllUser(@RequestParam(required = false) String email) {
         try {
             List<User> user = new ArrayList<User>();
@@ -39,16 +41,19 @@ public class UserController {
     }
 
     @GetMapping("/user/{id}")
+    @PreAuthorize("hasRole('USER')")
     public ResponseEntity<User> getUserById(@PathVariable("id") long id) {
         Optional<User> userData = userRepository.findById(id);
 
         return userData.map(user -> new ResponseEntity<>(user, HttpStatus.OK))
                 .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
+
     @PostMapping("/user")
+    @PreAuthorize("hasRole('MODERATOR')")
     public ResponseEntity<User> createUser(@RequestBody User user) {
        try {
-           User _user = userRepository.save(new User(user.getId(),
+           User _user = userRepository.save(new User(
                    user.getUsername(),
                    user.getEmail(),
                    user.getPassword(),
@@ -60,6 +65,7 @@ public class UserController {
     }
 
     @PutMapping("/user/{id}")
+    @PreAuthorize("hasRole('USER')")
     public ResponseEntity<User> updateUser(@PathVariable("id") long id, @RequestBody User user) {
         Optional<User> userData = userRepository.findById(id);
 
@@ -76,6 +82,7 @@ public class UserController {
     }
 
     @DeleteMapping("/user/{id}")
+    @PreAuthorize("hasRole('USER')")
     public ResponseEntity<HttpStatus> deleteUser(@PathVariable("id") long id){
         try {
             userRepository.deleteById(id);
@@ -86,6 +93,7 @@ public class UserController {
     }
 
     @DeleteMapping("/user")
+    @PreAuthorize("hasRole('USER')")
     public ResponseEntity<HttpStatus> deleteAllUser() {
         try{
             userRepository.deleteAll();
@@ -96,6 +104,7 @@ public class UserController {
     }
 
     @GetMapping("/user/byUsername/{username}")
+    @PreAuthorize("hasRole('USER')")
     public ResponseEntity<User> findByUsername(@PathVariable("username") String username) {
         try {
             Optional<User> users = userRepository.findByUsername(username);

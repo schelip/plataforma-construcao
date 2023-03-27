@@ -63,6 +63,7 @@ public class WebSecurityConfig {
                 .authorizeHttpRequests()
                 .requestMatchers("/api/auth/**").permitAll()
                 .requestMatchers("/api/test/**").permitAll()
+                .requestMatchers("/error").permitAll()
                 .anyRequest().authenticated();
 
         http.headers().frameOptions().sameOrigin();

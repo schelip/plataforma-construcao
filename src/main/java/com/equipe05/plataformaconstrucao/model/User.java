@@ -22,7 +22,7 @@ public class User {
     private @NotBlank String username;
     private @NotBlank @Email String email;
     private @NotBlank String password;
-    private @NotBlank @Min(18) int age;
+    private @Min(18) int age;
 
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "user_role",
@@ -32,8 +32,7 @@ public class User {
 
     User() {}
 
-    public User(Long id, String nickname, String email, String password, int age) {
-        this.id = id;
+    public User(String nickname, String email, String password, int age) {
         this.username = nickname;
         this.email = email;
         this.password = password;
@@ -107,7 +106,13 @@ public class User {
 
     @Override
     public String toString() {
-        return "User{" + "id=" + this.id + ", Nickname='" + this.username + '\'' + ", Email='" + this.email + '\'' +  ", Password='" + this.password + '\'' + ",'Age='" + this.age + '}';
+        return "User{" +
+                "id='" + this.id + "'" +
+                ", Nickname='" + this.username + "'" +
+                ", Email='" + this.email + "'" +
+                ", Password='" + this.password + "'" +
+                ", Age='" + this.age + "'" +
+                ", Roles='" + this.roles + "'}";
     }
 
 }

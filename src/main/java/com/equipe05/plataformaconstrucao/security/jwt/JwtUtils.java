@@ -53,15 +53,15 @@ public class JwtUtils {
             Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(jwt);
             return true;
         } catch (SignatureException e) {
-            logger.error("Assinatura JWT inválida: {}", e.getMessage());
+            logger.error("Invalid JWT signature: {}", e.getMessage());
         } catch (MalformedJwtException e) {
-            logger.error("Token JWT inválido: {}", e.getMessage());
+            logger.error("Invalid JWT token: {}", e.getMessage());
         } catch (ExpiredJwtException e) {
-            logger.error("Token JWT expirou: {}", e.getMessage());
+            logger.error("Expired JWT token: {}", e.getMessage());
         } catch (UnsupportedJwtException e) {
-            logger.error("Token JWT não suportado: {}", e.getMessage());
+            logger.error("Unsupported JWT token: {}", e.getMessage());
         } catch (IllegalArgumentException e) {
-            logger.error("JWT foi identificado como vazio: {}", e.getMessage());
+            logger.error("JWT identified as empty: {}", e.getMessage());
         }
 
         return false;
