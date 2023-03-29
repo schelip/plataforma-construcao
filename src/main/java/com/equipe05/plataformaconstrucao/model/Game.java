@@ -3,21 +3,25 @@ package com.equipe05.plataformaconstrucao.model;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
-import java.util.Objects;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
+
+import java.util.Objects;
 
 
 @Entity
 @Table(name = "game")
 public class Game {
     private @Id @GeneratedValue Long id;
-    private String nameGame;
+    private @NotBlank String name;
+    private @NotBlank @Size(min = 7, max = 7) String colorHex;
 
     Game() {}
 
-    public User(Long id, String nameGame) {
-        this.id = id;
-        this.nameGame = nameGame;
+    public Game(String name, String colorHex) {
+        this.name = name;
+        this.colorHex = colorHex;
     }
 
     public Long getId() {
@@ -28,12 +32,20 @@ public class Game {
         this.id = id;
     }
 
-    public String getNameGame() {
-        return this.nameGame;
+    public String getName() {
+        return this.name;
     }
 
-    public void setNameGame(String nameGame) {
-        this.nameGame = nameGame;
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getColorHex() {
+        return colorHex;
+    }
+
+    public void setColorHex(String colorHex) {
+        this.colorHex = colorHex;
     }
 
     @Override
@@ -41,20 +53,23 @@ public class Game {
 
         if (this == o)
             return true;
-        if (!(o instanceof Game))
+        if (!(o instanceof Game game))
             return false;
-            Game game = (Game) o;
-        return Objects.equals(this.id, game.id) && Objects.equals(this.nameGame, game.nameGame);
+        return Objects.equals(this.id, game.id) && Objects.equals(this.name, game.name);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(this.id, this.nameGame);
+        return Objects.hash(this.id, this.name);
     }
 
     @Override
     public String toString() {
-        return "User{" + "id=" + this.id + ", Nickname='" + this.nameGame + '}';
+        return "Game{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", colorHex='" + colorHex + '\'' +
+                '}';
     }
 
 }
