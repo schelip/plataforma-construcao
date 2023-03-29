@@ -126,4 +126,29 @@ public class AuthController {
         return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, cookie.toString())
                 .body(new MessageResponse("Sign out complete"));
     }
+
+    @GetMapping("/me")
+    public ResponseEntity<?> getLoggedInUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        System.out.println(authentication.getPrincipal());
+
+        if (authentication.getPrincipal() instanceof String && authentication.getPrincipal().equals("anonymousUser")) {
+            throw new RuntimeException("Nenhum usuário logado");
+        }
+
+        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+
+        ResponseCookie jwtCookie = jwtUtils.generateJwtCookie(userDetails);
+
+        List<String> roles = userDetails.getAuthorities()
+                .stream()
+                .map(GrantedAuthority::getAuthority)
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, jwtCookie.toString())
+                .body(new UserInfoResponse(userDetails.getId(),
+                        userDetails.getUsername(),
+                        userDetails.getEmail(),
+                        roles));
+    }
 }
