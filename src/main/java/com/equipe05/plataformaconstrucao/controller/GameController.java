@@ -3,26 +3,28 @@ package com.equipe05.plataformaconstrucao.controller;
 
 import com.equipe05.plataformaconstrucao.model.Game;
 import com.equipe05.plataformaconstrucao.repository.GameRepository;
+import com.equipe05.plataformaconstrucao.services.GameService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.net.URI;
+import java.text.MessageFormat;
+import java.util.*;
 
-
-@CrossOrigin(origins = "http://localhost:5432")
 @RestController
 @RequestMapping("/api")
 public class GameController {
-    @Autowired
-    GameRepository gameRepository;
+    @Autowired GameRepository gameRepository;
+    @Autowired GameService gameService;
 
     @GetMapping("/public/game")
-    public ResponseEntity<List<Game>> getAllGame(@RequestParam(required = false) String name) {
+    public ResponseEntity<List<Game>> getAll(@RequestParam(required = false) String name) {
         try {
             List<Game> games = new ArrayList<>();
 
@@ -37,13 +39,14 @@ public class GameController {
 
             return new ResponseEntity<>(games, HttpStatus.OK);
         } catch (Exception e) {
+            e.printStackTrace();
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     @GetMapping("/game/{id}")
-    @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<Game> getGameById(@PathVariable("id") long id) {
+    @PreAuthorize("hasRole('ROLE_USER')")
+    public ResponseEntity<Game> getById(@PathVariable("id") long id) {
         Optional<Game> gameData = gameRepository.findById(id);
 
         return gameData.map(game -> new ResponseEntity<>(game, HttpStatus.OK))
@@ -51,19 +54,20 @@ public class GameController {
     }
 
     @PostMapping("/game")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Game> createGame(@RequestBody Game game) {
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ResponseEntity<Game> create(@RequestBody Game game) {
        try {
         Game _game = gameRepository.save(game);
            return new ResponseEntity<>(_game, HttpStatus.CREATED);
        } catch (Exception e) {
+           e.printStackTrace();
            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
        }
     }
 
     @PutMapping("/game/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Game> updateGame (@PathVariable("id") long id, @RequestBody Game game) {
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ResponseEntity<Game> update(@PathVariable("id") long id, @RequestBody Game game) {
         Optional<Game> gameData = gameRepository.findById(id);
 
         if (gameData.isPresent()) {
@@ -76,23 +80,88 @@ public class GameController {
     }
 
     @DeleteMapping("/game/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<HttpStatus> deleteGame (@PathVariable("id") long id){
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ResponseEntity<HttpStatus> delete(@PathVariable("id") long id){
         try {
             gameRepository.deleteById(id);
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         } catch (Exception e) {
+            e.printStackTrace();
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     @DeleteMapping("/game")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<HttpStatus> deleteAllGame() {
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ResponseEntity<HttpStatus> deleteAll() {
         try{
             gameRepository.deleteAll();
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         } catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping("/public/game/{id}/icon")
+    public ResponseEntity<?> getIcon(@PathVariable("id") Long id) {
+        try {
+            byte[] bytes = gameService.getGameIcon(id);
+            String icon = Base64.getEncoder().encodeToString(bytes);
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"icon-${System.currentTimeMillis()}\"")
+                    .body(icon);
+        } catch(NoSuchElementException e){
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping("/public/game/{id}/background-image")
+    public ResponseEntity<?> getBackgroundImage(@PathVariable("id") Long id) {
+        try {
+            byte[] icon = gameService.getGameBackgroundImage(id);
+            return ResponseEntity.ok()
+                    .contentType(MediaType.parseMediaType(MediaType.IMAGE_JPEG_VALUE))
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"background-image-${System.currentTimeMillis()}\"")
+                    .body(icon);
+        } catch(NoSuchElementException e){
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @PostMapping(path = "/game/{id}/icon", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ResponseEntity<HttpStatus> setIcon(@PathVariable("id") Long id, @RequestParam MultipartFile file) {
+        try {
+            gameService.setGameIcon(id, file);
+            return ResponseEntity.created(new URI(MessageFormat.format("/api/game/{0}/icon", id))).build();
+        } catch (NoSuchElementException e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @PostMapping(path = "/game/{id}/background-image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ResponseEntity<HttpStatus> setBackgroundImage(@PathVariable("id") Long id, @RequestParam MultipartFile file) {
+        try {
+            if (!gameRepository.existsById(id)) {
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            }
+            gameService.setGameBackgroundImage(id, file);
+            return ResponseEntity.created(new URI(MessageFormat.format("/api/game/{0}/icon", id))).build();
+        } catch (NoSuchElementException e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        } catch (Exception e) {
+            e.printStackTrace();
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }

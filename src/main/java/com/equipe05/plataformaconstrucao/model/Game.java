@@ -1,9 +1,6 @@
 package com.equipe05.plataformaconstrucao.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
@@ -16,12 +13,16 @@ public class Game {
     private @Id @GeneratedValue Long id;
     private @NotBlank String name;
     private @NotBlank @Size(min = 7, max = 7) String colorHex;
+    private @Lob @Basic(fetch = FetchType.LAZY) byte[] icon;
+    private @Lob @Basic(fetch = FetchType.LAZY) byte[] backgroundImage;
 
     Game() {}
 
-    public Game(String name, String colorHex) {
+    public Game(String name, String colorHex, byte[] icon, byte[] backgroundImage) {
         this.name = name;
         this.colorHex = colorHex;
+        this.icon = icon;
+        this.backgroundImage = backgroundImage;
     }
 
     public Long getId() {
@@ -46,6 +47,22 @@ public class Game {
 
     public void setColorHex(String colorHex) {
         this.colorHex = colorHex;
+    }
+
+    public byte[] getIcon() {
+        return icon;
+    }
+
+    public void setIcon(byte[] icon) {
+        this.icon = icon;
+    }
+
+    public byte[] getBackgroundImage() {
+        return backgroundImage;
+    }
+
+    public void setBackgroundImage(byte[] backgroundImage) {
+        this.backgroundImage = backgroundImage;
     }
 
     @Override

@@ -21,7 +21,7 @@ public class UserController {
     @Autowired UserRepository userRepository;
 
     @GetMapping("/user")
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("hasRole('ROLE_USER')")
     public ResponseEntity<List<User>> getAllUser(@RequestParam(required = false) String email) {
         try {
             List<User> user = new ArrayList<User>();
@@ -41,7 +41,7 @@ public class UserController {
     }
 
     @GetMapping("/user/{id}")
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("hasRole('ROLE_USER')")
     public ResponseEntity<User> getUserById(@PathVariable("id") long id) {
         Optional<User> userData = userRepository.findById(id);
 
@@ -50,7 +50,7 @@ public class UserController {
     }
 
     @PostMapping("/user")
-    @PreAuthorize("hasRole('MODERATOR')")
+    @PreAuthorize("hasRole('ROLE_MODERATOR')")
     public ResponseEntity<User> createUser(@RequestBody User user) {
        try {
            User _user = userRepository.save(new User(
@@ -65,7 +65,7 @@ public class UserController {
     }
 
     @PutMapping("/user/{id}")
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("hasRole('ROLE_USER')")
     public ResponseEntity<User> updateUser(@PathVariable("id") long id, @RequestBody User user) {
         Optional<User> userData = userRepository.findById(id);
 
@@ -82,7 +82,7 @@ public class UserController {
     }
 
     @DeleteMapping("/user/{id}")
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("hasRole('ROLE_USER')")
     public ResponseEntity<HttpStatus> deleteUser(@PathVariable("id") long id){
         try {
             userRepository.deleteById(id);
@@ -93,7 +93,7 @@ public class UserController {
     }
 
     @DeleteMapping("/user")
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("hasRole('ROLE_USER')")
     public ResponseEntity<HttpStatus> deleteAllUser() {
         try{
             userRepository.deleteAll();
@@ -104,7 +104,7 @@ public class UserController {
     }
 
     @GetMapping("/user/byUsername/{username}")
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("hasRole('ROLE_USER')")
     public ResponseEntity<User> findByUsername(@PathVariable("username") String username) {
         try {
             Optional<User> users = userRepository.findByUsername(username);
