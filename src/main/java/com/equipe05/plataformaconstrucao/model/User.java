@@ -23,6 +23,9 @@ public class User {
     private @NotBlank @Email String email;
     private @NotBlank String password;
     private @Min(18) int age;
+    private @Column(columnDefinition="TEXT") String description;
+    private @Lob @Basic(fetch = FetchType.LAZY) byte[] profilePic;
+    private @Lob @Basic(fetch = FetchType.LAZY) byte[] banner;
 
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "user_role",
@@ -32,11 +35,29 @@ public class User {
 
     User() {}
 
-    public User(String nickname, String email, String password, int age) {
-        this.username = nickname;
+    public User(String username, String email, String password, int age) {
+        this.username = username;
         this.email = email;
         this.password = password;
         this.age = age;
+    }
+
+    public User(String username,
+                String email,
+                String password,
+                int age,
+                String description,
+                byte[] profilePic,
+                byte[] banner,
+                Set<Role> roles) {
+        this.username = username;
+        this.email = email;
+        this.password = password;
+        this.age = age;
+        this.description = description;
+        this.profilePic = profilePic;
+        this.banner = banner;
+        this.roles = roles;
     }
 
     public Long getId() {
@@ -85,6 +106,30 @@ public class User {
 
     public void setRoles(Set<Role> roles) {
         this.roles = roles;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public byte[] getProfilePic() {
+        return profilePic;
+    }
+
+    public void setProfilePic(byte[] profilePic) {
+        this.profilePic = profilePic;
+    }
+
+    public byte[] getBanner() {
+        return banner;
+    }
+
+    public void setBanner(byte[] banner) {
+        this.banner = banner;
     }
 
     @Override

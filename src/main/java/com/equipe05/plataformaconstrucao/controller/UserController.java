@@ -3,15 +3,21 @@ package com.equipe05.plataformaconstrucao.controller;
 
 import com.equipe05.plataformaconstrucao.model.User;
 import com.equipe05.plataformaconstrucao.repository.UserRepository;
+import com.equipe05.plataformaconstrucao.services.AuthService;
+import com.equipe05.plataformaconstrucao.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.net.URI;
+import java.text.MessageFormat;
+import java.util.*;
 
 
 @CrossOrigin(origins = "http://localhost:5432")
@@ -19,9 +25,11 @@ import java.util.Optional;
 @RequestMapping("/api")
 public class UserController {
     @Autowired UserRepository userRepository;
+    @Autowired UserService userService;
+    @Autowired PasswordEncoder encoder;
 
     @GetMapping("/user")
-    @PreAuthorize("hasRole('ROLE_USER')")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<List<User>> getAllUser(@RequestParam(required = false) String email) {
         try {
             List<User> user = new ArrayList<User>();
@@ -45,19 +53,22 @@ public class UserController {
     public ResponseEntity<User> getUserById(@PathVariable("id") long id) {
         Optional<User> userData = userRepository.findById(id);
 
-        return userData.map(user -> new ResponseEntity<>(user, HttpStatus.OK))
-                .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
+        if (userData.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+
+        User user = userData.get();
+        user.setPassword(null);
+
+        return new ResponseEntity<>(user, HttpStatus.OK);
     }
 
     @PostMapping("/user")
     @PreAuthorize("hasRole('ROLE_MODERATOR')")
     public ResponseEntity<User> createUser(@RequestBody User user) {
        try {
-           User _user = userRepository.save(new User(
-                   user.getUsername(),
-                   user.getEmail(),
-                   user.getPassword(),
-                   user.getAge()));
+           user.setPassword(encoder.encode(user.getPassword()));
+           User _user = userRepository.save(user);
            return new ResponseEntity<>(_user, HttpStatus.CREATED);
        } catch (Exception e) {
            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -67,6 +78,10 @@ public class UserController {
     @PutMapping("/user/{id}")
     @PreAuthorize("hasRole('ROLE_USER')")
     public ResponseEntity<User> updateUser(@PathVariable("id") long id, @RequestBody User user) {
+        if (!AuthService.isPrincipalModerator() && AuthService.getPrincipal().getId() != id) {
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        }
+
         Optional<User> userData = userRepository.findById(id);
 
         if (userData.isPresent()) {
@@ -74,7 +89,8 @@ public class UserController {
             _user.setEmail(user.getEmail());
             _user.setUsername(user.getUsername());
             _user.setAge(user.getAge());
-            _user.setPassword(user.getPassword());
+            _user.setPassword(encoder.encode(user.getPassword()));
+            _user.setDescription(user.getDescription());
             return new ResponseEntity<>(userRepository.save(_user), HttpStatus.OK);
         } else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -93,7 +109,7 @@ public class UserController {
     }
 
     @DeleteMapping("/user")
-    @PreAuthorize("hasRole('ROLE_USER')")
+    @PreAuthorize("hasRole('ROLE_MODERATOR')")
     public ResponseEntity<HttpStatus> deleteAllUser() {
         try{
             userRepository.deleteAll();
@@ -114,6 +130,83 @@ public class UserController {
             }
             return new ResponseEntity<>(users.get(), HttpStatus.OK);
         } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping("/user/{id}/profile-pic")
+    @PreAuthorize("hasRole('ROLE_USER')")
+    public ResponseEntity<?> getProfilePic(@PathVariable("id") Long id) {
+        if (!AuthService.isPrincipalModerator() && AuthService.getPrincipal().getId() != id) {
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        }
+
+        try {
+            byte[] bytes = userService.getProfilePic(id);
+            String icon = Base64.getEncoder().encodeToString(bytes);
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"icon-${System.currentTimeMillis()}\"")
+                    .body(icon);
+        } catch(NoSuchElementException e){
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping("/user/{id}/banner")
+    @PreAuthorize("hasRole('ROLE_USER')")
+    public ResponseEntity<?> getBanner(@PathVariable("id") Long id) {
+        if (!AuthService.isPrincipalModerator() && AuthService.getPrincipal().getId() != id) {
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        }
+
+        try {
+            byte[] icon = userService.getBanner(id);
+            return ResponseEntity.ok()
+                    .contentType(MediaType.parseMediaType(MediaType.IMAGE_JPEG_VALUE))
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"background-image-${System.currentTimeMillis()}\"")
+                    .body(icon);
+        } catch(NoSuchElementException e){
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @PostMapping(path = "/user/{id}/profile-pic", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PreAuthorize("hasRole('ROLE_USER')")
+    public ResponseEntity<HttpStatus> setProfilePic(@PathVariable("id") Long id, @RequestParam MultipartFile file) {
+        if (!AuthService.isPrincipalModerator() && AuthService.getPrincipal().getId() != id) {
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        }
+
+        try {
+            userService.setProfilePic(id, file);
+            return ResponseEntity.created(new URI(MessageFormat.format("/api/user/{0}/profile-pic", id))).build();
+        } catch (NoSuchElementException e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @PostMapping(path = "/user/{id}/banner", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PreAuthorize("hasRole('ROLE_USER')")
+    public ResponseEntity<HttpStatus> setBanner(@PathVariable("id") Long id, @RequestParam MultipartFile file) {
+        try {
+            if (!userRepository.existsById(id)) {
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            }
+            userService.setBanner(id, file);
+            return ResponseEntity.created(new URI(MessageFormat.format("/api/user/{0}/banner", id))).build();
+        } catch (NoSuchElementException e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        } catch (Exception e) {
+            e.printStackTrace();
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
