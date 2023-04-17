@@ -1,6 +1,6 @@
-package com.equipe05.plataformaconstrucao.security.jwt;
+package com.equipe05.plataformaconstrucao.services.security.jwt;
 
-import com.equipe05.plataformaconstrucao.security.services.UserDetailsImpl;
+import com.equipe05.plataformaconstrucao.services.security.services.UserDetailsImpl;
 import io.jsonwebtoken.*;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;

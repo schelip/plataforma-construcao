@@ -1,4 +1,4 @@
-package com.equipe05.plataformaconstrucao.security.services;
+package com.equipe05.plataformaconstrucao.services.security.services;
 
 import com.equipe05.plataformaconstrucao.model.User;
 import com.fasterxml.jackson.annotation.JsonIgnore;

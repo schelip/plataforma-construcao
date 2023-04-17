@@ -1,4 +1,4 @@
-package com.equipe05.plataformaconstrucao.security.jwt;
+package com.equipe05.plataformaconstrucao.services.security.jwt;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.ServletException;

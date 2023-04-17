@@ -1,7 +1,7 @@
 package com.equipe05.plataformaconstrucao.services;
 
 import com.equipe05.plataformaconstrucao.model.ERole;
-import com.equipe05.plataformaconstrucao.security.services.UserDetailsImpl;
+import com.equipe05.plataformaconstrucao.services.security.services.UserDetailsImpl;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
