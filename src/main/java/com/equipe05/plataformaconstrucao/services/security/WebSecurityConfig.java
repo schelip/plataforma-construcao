@@ -1,8 +1,8 @@
-package com.equipe05.plataformaconstrucao.security;
+package com.equipe05.plataformaconstrucao.services.security;
 
-import com.equipe05.plataformaconstrucao.security.jwt.AuthEntryPointJwt;
-import com.equipe05.plataformaconstrucao.security.jwt.AuthTokenFilter;
-import com.equipe05.plataformaconstrucao.security.services.UserDetailsServiceImpl;
+import com.equipe05.plataformaconstrucao.services.security.jwt.AuthEntryPointJwt;
+import com.equipe05.plataformaconstrucao.services.security.jwt.AuthTokenFilter;
+import com.equipe05.plataformaconstrucao.services.security.services.UserDetailsServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

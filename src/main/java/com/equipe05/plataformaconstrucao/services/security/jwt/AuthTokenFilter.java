@@ -1,6 +1,6 @@
-package com.equipe05.plataformaconstrucao.security.jwt;
+package com.equipe05.plataformaconstrucao.services.security.jwt;
 
-import com.equipe05.plataformaconstrucao.security.services.UserDetailsServiceImpl;
+import com.equipe05.plataformaconstrucao.services.security.services.UserDetailsServiceImpl;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -20,7 +20,8 @@ public class AuthTokenFilter extends OncePerRequestFilter {
     private static final Logger logger = LoggerFactory.getLogger(AuthTokenFilter.class);
 
     private @Autowired JwtUtils jwtUtils;
-    private @Autowired UserDetailsServiceImpl userDetailsService;
+    private @Autowired
+    UserDetailsServiceImpl userDetailsService;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {

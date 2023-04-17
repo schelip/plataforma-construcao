@@ -2,6 +2,9 @@ package com.equipe05.plataformaconstrucao.services;
 
 import com.equipe05.plataformaconstrucao.model.Game;
 import com.equipe05.plataformaconstrucao.repository.GameRepository;
+import com.equipe05.plataformaconstrucao.services.tracker.TrackerCode;
+import com.equipe05.plataformaconstrucao.services.tracker.TrackerService;
+import com.equipe05.plataformaconstrucao.services.tracker.TrnTrackerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -40,5 +43,16 @@ public class GameService {
     public byte[] getGameBackgroundImage(Long id) {
         Game game = gameRepository.findById(id).orElseThrow();
         return game.getBackgroundImage();
+    }
+
+    public TrackerService getGameTrackerService(Long id) {
+        Game game = gameRepository.findById(id).orElseThrow();
+        TrackerCode trackerCode = game.getTrackerCode();
+        TrackerService trackerService = null;
+        switch (trackerCode) {
+            case TRN:
+                trackerService = new TrnTrackerService();
+        }
+        return trackerService;
     }
 }
