@@ -57,7 +57,7 @@ public class GameController {
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<Game> create(@RequestBody Game game) {
        try {
-        Game _game = gameRepository.save(game);
+           Game _game = gameRepository.save(game);
            return new ResponseEntity<>(_game, HttpStatus.CREATED);
        } catch (Exception e) {
            e.printStackTrace();
