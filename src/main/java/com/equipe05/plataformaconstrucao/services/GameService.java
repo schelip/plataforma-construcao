@@ -13,7 +13,6 @@ public class GameService {
     @Autowired GameRepository gameRepository;
 
     public void setGameIcon(Long id, MultipartFile file) {
-        System.out.println(id);
         Game game = gameRepository.findById(id).orElseThrow();
         try {
             game.setIcon(file.getBytes());

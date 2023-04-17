@@ -11,6 +11,7 @@ import com.equipe05.plataformaconstrucao.repository.RoleRepository;
 import com.equipe05.plataformaconstrucao.repository.UserRepository;
 import com.equipe05.plataformaconstrucao.security.jwt.JwtUtils;
 import com.equipe05.plataformaconstrucao.security.services.UserDetailsImpl;
+import com.equipe05.plataformaconstrucao.services.AuthService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -129,14 +130,7 @@ public class AuthController {
 
     @GetMapping("/me")
     public ResponseEntity<?> getLoggedInUser() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        System.out.println(authentication.getPrincipal());
-
-        if (authentication.getPrincipal() instanceof String && authentication.getPrincipal().equals("anonymousUser")) {
-            throw new RuntimeException("Nenhum usuário logado");
-        }
-
-        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+        UserDetailsImpl userDetails = AuthService.getPrincipal();
 
         ResponseCookie jwtCookie = jwtUtils.generateJwtCookie(userDetails);
 
